@@ -1,0 +1,182 @@
+# ============================================================
+# ALMA · CURSOR RULES v2.0
+# ============================================================
+# Read this COMPLETELY before writing any code.
+# These 17 rules apply to every file without exception.
+# Cursor reads this automatically from the project root.
+# ============================================================
+
+# ─── RULE 01 · FILE HEADER (MANDATORY ON EVERY FILE) ────────
+# Every file starts with this exact block. No exceptions.
+#
+# // ============================================================
+# // ALMA · [LAYER] · [FileName.tsx]
+# // ============================================================
+# // What this file does: one clear sentence explaining purpose
+# // Module: [module name] — see modules/[name]/README.md
+# // Depends on: direct imports / services listed here
+# // Used by: files or routes that import this
+# // Zone: GREEN | YELLOW | RED — see ARCHITECTURE_ZONES.md
+# // Handoff: YES | NO — if YES, see modules/[name]/HANDOFF.md
+# // Last checkpoint: PHASE-XX
+# // ============================================================
+
+# ─── RULE 02 · 150 LINE HARD LIMIT ──────────────────────────
+# No file may exceed 150 lines. Split before you hit it.
+# Split: big component → sub-component | big hook → lib helper
+# Split: big route → services/ file | many types → types/[feature].ts
+
+# ─── RULE 03 · SECTION HEADINGS + WHY COMMENTS ──────────────
+# Use these headings in order (skip irrelevant ones).
+# After each heading: one comment explaining the WHY.
+#
+# // ─── IMPORTS ──────────────────────────────────────────────
+# // Why: [what we need from each and why this approach]
+# // ─── TYPES ────────────────────────────────────────────────
+# // ─── CONSTANTS ────────────────────────────────────────────
+# // ─── HELPERS ──────────────────────────────────────────────
+# // ─── COMPONENT / HOOK / HANDLER ───────────────────────────
+# // ─── EXPORTS ──────────────────────────────────────────────
+
+# ─── RULE 04 · TYPESCRIPT STRICT ────────────────────────────
+# Strict TypeScript. No exceptions:
+#   ❌ any   ❌ @ts-ignore   ❌ @ts-nocheck
+#   ❌ Non-null assertion (!) without explanatory CRITICAL comment
+# Required: explicit return types on all exported functions
+# Required: Zod validation on all API route request bodies
+
+# ─── RULE 05 · NO HARDCODED COLOURS ────────────────────────
+# All colours via CSS variables from alma-tokens.css only.
+# ❌ Any hex (#07090F)  ❌ Any rgb()  ❌ Any Tailwind colour class
+# ✅ var(--accent)  var(--bg-base)  var(--text-primary)
+# Verify: grep -n "#[0-9A-Fa-f]\{6\}" [file] → must be zero
+
+# ─── RULE 06 · BRANDING ─────────────────────────────────────
+# Product: ALMA. Never JARVIS. Zero tolerance on JARVIS anywhere.
+# Model: always "claude-sonnet-4-20250514" — never change this
+# Tokens: chat=1000, Hub speaker=200, briefs=300
+# Channel: Telegram for pilot. WhatsApp DEFERRED.
+
+# ─── RULE 07 · SUPABASE CLIENT SELECTION ────────────────────
+# Browser components/hooks → lib/supabase/client.ts (createBrowserClient)
+# Server components/API routes → lib/supabase/server.ts (createServerClient)
+# Edge Functions → service role key only
+# REASON: Browser client in API routes bypasses RLS entirely.
+# All tables have RLS. Test queries as authenticated user.
+
+# ─── RULE 08 · API ROUTE PATTERN (mandatory order) ──────────
+# 1. Zod parse body → 400 on invalid
+# 2. Auth session check → 401 if missing
+# 3. user_id FROM SESSION (never from body — see Rule 13)
+# 4. Business logic
+# 5. Typed response
+# 6. Catch all → 500 with generic message (no internals)
+
+# ─── RULE 09 · COMPONENT PATTERN ────────────────────────────
+# Every component handles: loading (Skeleton), error (AlmaErrorCard), empty.
+# Props: explicit types. onX for callbacks. isX for booleans.
+# Default export only. 'use client' only when hooks/events needed.
+
+# ─── RULE 10 · QUALITY GATE ZONES ───────────────────────────
+# Tag every file: Zone: GREEN | YELLOW | RED
+# GREEN: Cursor edits freely. Snapshot tests required.
+# YELLOW: Review required. Unit + integration tests required.
+# RED: Human review mandatory. E2E + security audit required.
+# See ARCHITECTURE_ZONES.md for every file's zone assignment.
+
+# ─── RULE 11 · HOOK PATTERN ─────────────────────────────────
+# Return object not array: { data, isLoading, error, ...actions }
+# All async: try/catch, set error state, never throw upward
+# All Supabase subscriptions: cleanup on unmount (return statement)
+# Never return undefined — use null for absent data
+
+# ─── RULE 12 · ERROR HANDLING ───────────────────────────────
+# Hooks → error state   API routes → 500 generic   Components → AlmaErrorCard
+# Edge Functions → log + return 200 (Supabase requirement)
+# Never: alert()  Never: swallow silently  Never: expose internals
+
+# ─── RULE 13 · SECURITY NON-NEGOTIABLES ─────────────────────
+# ⚠️ user_id ALWAYS from server session. NEVER from request body.
+# Validate ALL external inputs with Zod before any DB write.
+# NEXT_PUBLIC_ only on values safe to expose to browsers.
+# Service keys never in client-side code, ever.
+
+# ─── RULE 14 · PERFORMANCE ──────────────────────────────────
+# Skeleton on mount for all data-fetching components (no blank flash)
+# Debounce input-triggered API calls: 300ms minimum
+# Max 3 Supabase Realtime subscriptions per page
+# next/image for all images with explicit width + height
+
+# ─── RULE 15 · ABSOLUTE BANS ────────────────────────────────
+# ❌ import React from 'react'        → named imports only
+# ❌ Hardcoded colours                → alma-tokens.css vars only
+# ❌ JARVIS anywhere                  → zero tolerance
+# ❌ Files over 150 lines             → split immediately
+# ❌ Missing file header              → Rule 01, mandatory
+# ❌ useEffect without dependency array
+# ❌ API route without auth check     → Rule 08, mandatory
+# ❌ console.log in source files      → console.error for real errors
+# ❌ WhatsApp integration             → Telegram only for pilot
+# ❌ Claude model != 'claude-sonnet-4-20250514'
+
+# ─── RULE 16 · COMMENTS THROUGHOUT ALL CODE ─────────────────
+# Comments explain WHY — never restate what the code says.
+#
+# MANDATORY — JSDoc on every exported function:
+#   /**
+#    * What it does in one sentence. WHY it exists.
+#    * @param name - what it is, any constraints or format
+#    * @returns shape of what comes back
+#    * @throws Never throws — errors returned in state/response
+#    * @example
+#    * const result = await sendMessage("Hello", "in-app")
+#    */
+#
+# MANDATORY — WHY comment on non-obvious logic:
+#   // We fetch last 10 messages only, not the full history.
+#   // Reason: Claude charges per token. 10 msgs ≈ 2000 tokens.
+#   // Increasing this to 20 doubles Claude API cost per message.
+#
+# MANDATORY — CRITICAL comment on security/data lines:
+#   // ⚠️ CRITICAL: user_id from session — never from body.
+#   // Changing this allows any user to impersonate another.
+#
+# MANDATORY — HANDOFF marker where modules connect:
+#   // 🔌 HANDOFF: Hardware Bridge polls hub_commands here.
+#   // Contract: modules/hardware/HANDOFF.md
+#   // Do NOT change this schema without updating bridge.py.
+#
+# REQUIRED — TODO with phase for future work:
+#   // TODO PHASE-2: Replace with Open Banking (Salt Edge EU)
+#   // Apply for approval at pilot start — takes 2-4 weeks.
+#
+# ❌ BAD:  // Create supabase client
+# ✅ GOOD: // Server client required — browser client bypasses RLS
+
+# ─── RULE 17 · MODULE STRUCTURE ─────────────────────────────
+# Every feature lives in modules/[name]/ with:
+#   README.md   — what this module does, exports, dependencies
+#   index.ts    — public API only (re-exports from internal files)
+#   HANDOFF.md  — if other developers connect here
+# Modules communicate via Supabase DB or API contracts.
+# Never import between modules' internal files directly.
+# REASON: Makes it safe to hand any module to another developer.
+
+# ─── CURSOR WORKFLOW — DO THIS IN ORDER ─────────────────────
+# 1. Read .cursorrules (this file)
+# 2. Open the relevant PHASE-XX.md for the feature you're building
+# 3. Check ARCHITECTURE_ZONES.md for zone assignment
+# 4. Write the file header block FIRST (Rule 01)
+# 5. Write each JSDoc block BEFORE writing the function (Rule 16)
+# 6. Stay under 150 lines — split if approaching limit (Rule 02)
+# 7. Run: grep -n "#[0-9A-Fa-f]\{6\}" [file] → must be 0
+# 8. Run: npx tsc --noEmit → must be 0 errors
+# 9. Run the phase checkpoint from CHECKPOINTS.md
+
+# ─── REFERENCE DOCUMENTS ────────────────────────────────────
+# DESIGN.md                → Typography, spacing, component library
+# ARCHITECTURE_ZONES.md    → Zone definitions and file assignments
+# CHECKPOINTS.md           → Runnable verification per phase
+# DATA_PIPELINE.md         → Scraper isolation and nightly sync
+# modules/hardware/HANDOFF.md → Hardware bridge contract (Week 8)
+# phases/PHASE-00 through PHASE-16 → Step-by-step build guide
