@@ -1,26 +1,102 @@
-@import "tailwindcss";
+/* ============================================================
+ * ALMA · STYLES · globals.css
+ * ============================================================
+ * What this file does: Global styles importing Alma design tokens
+ * Module: foundation — see modules/foundation/README.md
+ * Depends on: styles/alma-tokens.css
+ * Used by: app/layout.tsx
+ * Zone: GREEN
+ * Handoff: NO
+ * Last checkpoint: PHASE-01
+ * ============================================================ */
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ─── IMPORTS ──────────────────────────────────────────────
+ * Why: Tailwind for utilities, alma-tokens for design system. */
+
+@import "tailwindcss";
+@import "../styles/alma-tokens.css";
+
+/* ─── TAILWIND THEME ───────────────────────────────────────
+ * Why: Override Tailwind defaults with Alma tokens.
+ * Note: Tailwind v4 uses @theme instead of tailwind.config. */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── BASE STYLES ──────────────────────────────────────────
+ * Why: Alma is dark-only — remove light theme media query.
+ * Body styles applied via layout.tsx for SSR consistency. */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Smooth scrolling for anchor links */
+  scroll-behavior: smooth;
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior: none;
+}
+
+/* ─── FOCUS STYLES ─────────────────────────────────────────
+ * Why: Accessible focus indicators using Alma accent color. */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─── SELECTION ────────────────────────────────────────────
+ * Why: Consistent text selection styling. */
+
+::selection {
+  background-color: var(--accent);
+  color: var(--bg-base);
+}
+
+/* ─── SCROLLBAR ────────────────────────────────────────────
+ * Why: Dark scrollbar matching Alma theme. */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dim);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ─── INPUT AUTOFILL ───────────────────────────────────────
+ * Why: Override browser autofill styling to match dark theme. */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-dim) inset;
+  transition: background-color 5000s ease-in-out 0s;
 }
