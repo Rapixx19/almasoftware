@@ -1,13 +1,13 @@
 // ============================================================
 // ALMA · APP · app/page.tsx
 // ============================================================
-// What this file does: Main app page for authenticated users
-// Module: shell — see modules/shell/README.md
+// What this file does: Chat home page for authenticated users
+// Module: chat — see modules/chat/README.md
 // Depends on: lib/supabase/server.ts
-// Used by: Authenticated users
+// Used by: Authenticated users via Shell layout
 // Zone: GREEN
 // Handoff: NO
-// Last checkpoint: PHASE-01
+// Last checkpoint: PHASE-02
 // ============================================================
 
 // ─── IMPORTS ──────────────────────────────────────────────
@@ -15,12 +15,12 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { LogoutButton } from './LogoutButton'
+import { MessageCircle } from 'lucide-react'
 
 // ─── COMPONENT ────────────────────────────────────────────
-// Why: Server component fetches user data. Placeholder until Phase 2.
+// Why: Chat page placeholder. Full implementation in Phase 3.
 
-export default async function AppPage() {
+export default async function ChatPage() {
   const supabase = await createClient()
 
   // Verify authentication
@@ -30,74 +30,67 @@ export default async function AppPage() {
     redirect('/login')
   }
 
-  // Fetch user profile
-  // Type the query result explicitly for TypeScript
+  // Fetch user profile for welcome message
   type ProfileRow = {
     display_name: string
-    onboarding_complete: boolean | null
   }
 
   const { data } = await supabase
     .from('users_profile')
-    .select('display_name, onboarding_complete')
+    .select('display_name')
     .eq('id', user.id)
     .single()
 
   const profile = data as ProfileRow | null
+  const displayName = profile?.display_name || user.email?.split('@')[0] || 'there'
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center p-8"
-      style={{ backgroundColor: 'var(--bg-base)' }}
-    >
+    <div className="flex flex-col items-center justify-center min-h-[60vh] p-8">
+      {/* Chat icon */}
       <div
-        className="w-full max-w-md p-8 rounded-lg text-center"
+        className="p-6 rounded-full mb-6"
         style={{ backgroundColor: 'var(--bg-surface)' }}
       >
-        {/* Logo */}
-        <h1
-          className="text-3xl font-bold mb-4"
-          style={{
-            fontFamily: 'var(--font-display)',
-            color: 'var(--accent)',
-          }}
-        >
-          ALMA
-        </h1>
+        <MessageCircle
+          size={48}
+          style={{ color: 'var(--accent)' }}
+        />
+      </div>
 
-        {/* Welcome message */}
-        <p
-          className="text-lg mb-2"
-          style={{ color: 'var(--text-primary)' }}
-        >
-          Welcome, {profile?.display_name || user.email}
-        </p>
-        <p
-          className="text-sm mb-6"
+      {/* Welcome heading */}
+      <h1
+        className="text-2xl font-bold mb-2"
+        style={{
+          fontFamily: 'var(--font-display)',
+          color: 'var(--text-primary)',
+        }}
+      >
+        Hello, {displayName}
+      </h1>
+
+      {/* Placeholder message */}
+      <p
+        className="text-center max-w-xs mb-6"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        Chat with Alma coming soon. The shell is ready for Phase 3.
+      </p>
+
+      {/* Status indicator */}
+      <div
+        className="flex items-center gap-2 px-4 py-2 rounded-full"
+        style={{ backgroundColor: 'var(--bg-dim)' }}
+      >
+        <span
+          className="w-2 h-2 rounded-full"
+          style={{ backgroundColor: 'var(--success)' }}
+        />
+        <span
+          className="text-sm"
           style={{ color: 'var(--text-secondary)' }}
         >
-          Authentication successful. App shell coming in Phase 2.
-        </p>
-
-        {/* Status indicator */}
-        <div
-          className="flex items-center justify-center gap-2 mb-6 p-3 rounded"
-          style={{ backgroundColor: 'var(--bg-dim)' }}
-        >
-          <span
-            className="w-2 h-2 rounded-full"
-            style={{ backgroundColor: 'var(--success)' }}
-          />
-          <span
-            className="text-sm"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            Authenticated
-          </span>
-        </div>
-
-        {/* Logout button */}
-        <LogoutButton />
+          Connected
+        </span>
       </div>
     </div>
   )
