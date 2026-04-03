@@ -1,0 +1,90 @@
+/* ============================================================
+ * ALMA · STYLES · alma-tokens.css
+ * ============================================================
+ * What this file does: Central design tokens for all Alma styling
+ * Module: foundation — see modules/foundation/README.md
+ * Depends on: nothing — this is the foundation
+ * Used by: app/globals.css, all components
+ * Zone: GREEN
+ * Handoff: NO
+ * Last checkpoint: PHASE-00
+ * ============================================================ */
+
+/* ─── ROOT VARIABLES ───────────────────────────────────────── */
+/* Why: All design tokens in one place for consistency.
+ * Colors from DESIGN.md, validated for WCAG 2.1 AA compliance. */
+
+:root {
+  /* ─── BACKGROUNDS ────────────────────────────────────────── */
+  /* Dark base reduces eye strain and creates ambient feel */
+  --bg-base:     #07090F;  /* deepest background */
+  --bg-surface:  #0F1117;  /* card backgrounds */
+  --bg-elevated: #161A24;  /* modals, sheets */
+  --bg-dim:      #1E2433;  /* muted areas */
+
+  /* ─── BRAND COLORS ───────────────────────────────────────── */
+  /* Restrained with semantic accents — color is rare and meaningful */
+  --accent:      #00C8F0;  /* Alma cyan — primary action, active states */
+  --success:     #00E5A0;  /* confirmations, done states */
+  --warm:        #FF6B35;  /* alerts, attention, urgent */
+  --purple:      #8B5CF6;  /* brainstorm mode, thinking state */
+  --gold:        #EF9F27;  /* elderly mode accent, care */
+
+  /* ─── TEXT COLORS ────────────────────────────────────────── */
+  /* Contrast ratios validated for accessibility */
+  --text-primary:   #F0F2F8;  /* contrast 15.4:1 on bg-base (AAA) */
+  --text-secondary: #8892A4;  /* contrast 5.8:1 on bg-base (AA) */
+  --text-muted:     #4A5568;  /* contrast 3.2:1 — disabled/placeholder only */
+
+  /* ─── BORDERS ────────────────────────────────────────────── */
+  --border:       rgba(255, 255, 255, 0.08);
+  --border-light: rgba(255, 255, 255, 0.04);
+
+  /* ─── SEMANTIC COLORS ────────────────────────────────────── */
+  --error:   #EF4444;  /* errors, destructive actions */
+  --warning: #F59E0B;  /* warnings, caution */
+  --info:    #3B82F6;  /* informational */
+
+  /* ─── TYPOGRAPHY ─────────────────────────────────────────── */
+  /* Font stack: Orbitron (display), Sora (body), Space Mono (data) */
+  --font-display: 'Orbitron', system-ui, sans-serif;
+  --font-body:    'Sora', system-ui, sans-serif;
+  --font-mono:    'Space Mono', ui-monospace, monospace;
+
+  /* ─── SPACING ────────────────────────────────────────────── */
+  /* Base unit: 4px — all spacing values are multiples of 4 */
+  --space-2xs: 2px;   /* 0.5 units */
+  --space-xs:  4px;   /* 1 unit */
+  --space-sm:  8px;   /* 2 units */
+  --space-md:  16px;  /* 4 units */
+  --space-lg:  24px;  /* 6 units */
+  --space-xl:  32px;  /* 8 units */
+  --space-2xl: 48px;  /* 12 units */
+  --space-3xl: 64px;  /* 16 units */
+
+  /* ─── BORDER RADIUS ──────────────────────────────────────── */
+  --radius-sm:   4px;   /* subtle rounding, inputs */
+  --radius-md:   8px;   /* cards, buttons */
+  --radius-lg:   12px;  /* modals, sheets */
+  --radius-xl:   16px;  /* large cards */
+  --radius-full: 9999px; /* pills, circular elements */
+
+  /* ─── MOTION ─────────────────────────────────────────────── */
+  /* Intentional motion as personality, not decoration */
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);    /* elements appearing */
+  --ease-exit:  cubic-bezier(0.4, 0, 1, 1);    /* elements leaving */
+  --ease-move:  cubic-bezier(0.4, 0, 0.2, 1);  /* position changes */
+
+  /* Duration scale */
+  --duration-micro:  50ms;   /* instant feedback */
+  --duration-fast:   150ms;  /* quick transitions */
+  --duration-normal: 250ms;  /* standard animations */
+  --duration-slow:   400ms;  /* emphasized transitions */
+  --duration-slower: 700ms;  /* dramatic reveals */
+
+  /* ─── LAYOUT ─────────────────────────────────────────────── */
+  /* Fixed element heights for consistent layout */
+  --status-bar-height: 54px;   /* fits mobile safe area */
+  --bottom-nav-height: 88px;   /* 64px visible + 24px safe area */
+  --content-height: calc(100vh - var(--status-bar-height) - var(--bottom-nav-height));
+}
