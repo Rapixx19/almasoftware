@@ -40,6 +40,13 @@
   --border:       rgba(255, 255, 255, 0.08);
   --border-light: rgba(255, 255, 255, 0.04);
 
+  /* ─── OVERLAYS ─────────────────────────────────────────────── */
+  /* Translucent overlays for modals, buttons, and backdrops */
+  --overlay-dark:     rgba(0, 0, 0, 0.8);
+  --overlay-white-10: rgba(255, 255, 255, 0.1);
+  --overlay-white-20: rgba(255, 255, 255, 0.2);
+  --overlay-white-50: rgba(255, 255, 255, 0.5);
+
   /* ─── SEMANTIC COLORS ────────────────────────────────────── */
   --error:   #EF4444;  /* errors, destructive actions */
   --warning: #F59E0B;  /* warnings, caution */
