@@ -3,22 +3,25 @@
 // ============================================================
 // What this file does: Main app wrapper that renders mode-aware layout
 // Module: shell — see modules/shell/README.md
-// Depends on: useMode, StatusBar, BottomNav, ElderlyShell
+// Depends on: useMode, useRealtimeAlerts, StatusBar, BottomNav, ElderlyShell, AlmaAlert
 // Used by: app/app/layout.tsx
 // Zone: GREEN
 // Handoff: NO
-// Last checkpoint: PHASE-02
+// Last checkpoint: PHASE-09
 // ============================================================
 
 'use client'
 
 // ─── IMPORTS ──────────────────────────────────────────────
 // Why: useMode for mode detection, shell components for layouts.
+// useRealtimeAlerts for global alert display, AlmaAlert for rendering.
 
 import { useMode } from '@/hooks/useMode'
+import { useRealtimeAlerts } from '@/hooks/useRealtimeAlerts'
 import { StatusBar } from './StatusBar'
 import { BottomNav } from './BottomNav'
 import { ElderlyShell } from './ElderlyShell'
+import { AlmaAlert } from '@/components/alma'
 
 // ─── TYPES ────────────────────────────────────────────────
 
@@ -52,8 +55,11 @@ function ShellSkeleton() {
 
 // ─── STANDARD SHELL ───────────────────────────────────────
 // Why: StatusBar + Content + BottomNav layout for standard users.
+// Includes realtime alert rendering with severity-based display.
 
 function StandardShell({ children }: ShellProps) {
+  const { urgentAlert, mediumAlerts, dismissAlert, snoozeAlert } = useRealtimeAlerts()
+
   return (
     <div
       className="min-h-screen"
@@ -61,6 +67,25 @@ function StandardShell({ children }: ShellProps) {
     >
       {/* Fixed top status bar */}
       <StatusBar />
+
+      {/* URGENT: Full-screen overlay - highest z-index */}
+      {urgentAlert && (
+        <AlmaAlert
+          alert={urgentAlert}
+          variant="urgent"
+          onDismiss={dismissAlert}
+        />
+      )}
+
+      {/* MEDIUM: Top banner - below urgent, slides down from status bar */}
+      {mediumAlerts[0] && !urgentAlert && (
+        <AlmaAlert
+          alert={mediumAlerts[0]}
+          variant="medium"
+          onDismiss={dismissAlert}
+          onSnooze={snoozeAlert}
+        />
+      )}
 
       {/* Main content area — padded for fixed nav */}
       <main

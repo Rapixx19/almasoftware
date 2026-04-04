@@ -37,6 +37,7 @@ export type Database = {
           read_at: string | null
           scheduled_for: string | null
           sent_at: string | null
+          snoozed_until: string | null
           title: string
           user_id: string
         }
@@ -51,6 +52,7 @@ export type Database = {
           read_at?: string | null
           scheduled_for?: string | null
           sent_at?: string | null
+          snoozed_until?: string | null
           title: string
           user_id: string
         }
@@ -65,6 +67,7 @@ export type Database = {
           read_at?: string | null
           scheduled_for?: string | null
           sent_at?: string | null
+          snoozed_until?: string | null
           title?: string
           user_id?: string
         }
@@ -540,8 +543,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mood_logs: {
+        Row: {
+          created_at: string | null
+          id: string
+          logged_at: string
+          mood: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          logged_at?: string
+          mood: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          logged_at?: string
+          mood?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       users_profile: {
         Row: {
+          autonomy_settings: Json | null
           created_at: string | null
           current_mode: string | null
           display_name: string
@@ -553,6 +581,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          autonomy_settings?: Json | null
           created_at?: string | null
           current_mode?: string | null
           display_name: string
@@ -564,6 +593,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          autonomy_settings?: Json | null
           created_at?: string | null
           current_mode?: string | null
           display_name?: string

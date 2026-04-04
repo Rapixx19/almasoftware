@@ -22,12 +22,16 @@ import type { AlmaMessage } from '@/types/alma'
 // ─── TYPES ────────────────────────────────────────────────
 // Why: Explicit return type for hook consumers (Rule 11).
 
+import type { ExtractedTask } from '@/components/chat/TaskConfirmation'
+
 interface UseChatReturn {
   messages: AlmaMessage[]
   isLoading: boolean
   error: Error | null
   sendMessage: (content: string) => Promise<void>
   isTyping: boolean
+  extractedTasks: ExtractedTask[]
+  clearExtractedTasks: () => void
 }
 
 // ─── CONSTANTS ────────────────────────────────────────────
@@ -53,8 +57,13 @@ export function useChat(): UseChatReturn {
   const [error, setError] = useState<Error | null>(null)
   const [isTyping, setIsTyping] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const [extractedTasks, setExtractedTasks] = useState<ExtractedTask[]>([])
 
   const supabase = createClient()
+
+  const clearExtractedTasks = useCallback(() => {
+    setExtractedTasks([])
+  }, [])
 
   // Fetch initial messages and subscribe to realtime updates
   useEffect(() => {
@@ -160,7 +169,7 @@ export function useChat(): UseChatReturn {
       }
 
       // Replace optimistic message with real one, add assistant response
-      const { userMessage, assistantMessage } = data
+      const { userMessage, assistantMessage, extractedTasks: tasks } = data
       setMessages((prev) => {
         // Remove optimistic, add real messages
         const filtered = prev.filter((m) => m.id !== optimisticId)
@@ -168,6 +177,11 @@ export function useChat(): UseChatReturn {
         if (assistantMessage) filtered.push(assistantMessage)
         return filtered
       })
+
+      // Set extracted tasks if any were found
+      if (tasks && tasks.length > 0) {
+        setExtractedTasks(tasks)
+      }
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to send message'))
     } finally {
@@ -181,5 +195,7 @@ export function useChat(): UseChatReturn {
     error,
     sendMessage,
     isTyping,
+    extractedTasks,
+    clearExtractedTasks,
   }
 }

@@ -15,13 +15,23 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { dismissAlert, deleteAlert } from '@/lib/services/alert-service'
+import { dismissAlert, deleteAlert, snoozeAlert } from '@/lib/services/alert-service'
 
 // ─── SCHEMAS ──────────────────────────────────────────────
 
-const dismissAlertSchema = z.object({
-  is_dismissed: z.literal(true),
-})
+const updateAlertSchema = z.object({
+  is_dismissed: z.boolean().optional(),
+  action: z.enum(['dismiss', 'snooze']).optional(),
+  snooze_minutes: z.number().int().min(1).max(1440).optional(),
+}).refine(
+  (data) => {
+    // If action is snooze, snooze_minutes must be provided
+    if (data.action === 'snooze' && !data.snooze_minutes) return false
+    // Either is_dismissed or action must be provided
+    return data.is_dismissed !== undefined || data.action !== undefined
+  },
+  { message: 'Either is_dismissed or action must be provided. Snooze requires snooze_minutes.' }
+)
 
 // ─── TYPES ────────────────────────────────────────────────
 
@@ -32,15 +42,15 @@ interface RouteContext {
 // ─── PATCH HANDLER ────────────────────────────────────────
 
 /**
- * Dismisses an alert (sets is_dismissed = true).
- * Rule 08 pattern: Zod → auth → user_id from session → dismiss → response.
+ * Updates an alert (dismiss or snooze).
+ * Rule 08 pattern: Zod → auth → user_id from session → action → response.
  */
 export async function PATCH(request: Request, context: RouteContext): Promise<NextResponse> {
   try {
     const { id } = await context.params
 
     const body = await request.json()
-    const parseResult = dismissAlertSchema.safeParse(body)
+    const parseResult = updateAlertSchema.safeParse(body)
 
     if (!parseResult.success) {
       return NextResponse.json(
@@ -56,12 +66,24 @@ export async function PATCH(request: Request, context: RouteContext): Promise<Ne
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const alert = await dismissAlert(user.id, id)
+    const { is_dismissed, action, snooze_minutes } = parseResult.data
 
-    return NextResponse.json({ alert })
+    // Handle snooze action
+    if (action === 'snooze' && snooze_minutes) {
+      const alert = await snoozeAlert(user.id, id, snooze_minutes)
+      return NextResponse.json({ alert })
+    }
+
+    // Handle dismiss (via action or is_dismissed flag)
+    if (action === 'dismiss' || is_dismissed) {
+      const alert = await dismissAlert(user.id, id)
+      return NextResponse.json({ alert })
+    }
+
+    return NextResponse.json({ error: 'No valid action specified' }, { status: 400 })
   } catch (err) {
     console.error('PATCH /api/alerts/[id] error:', err)
-    return NextResponse.json({ error: 'Failed to dismiss alert' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to update alert' }, { status: 500 })
   }
 }
 

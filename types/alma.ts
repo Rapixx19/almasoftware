@@ -49,6 +49,26 @@ export type MemoryCategory =
  */
 export type AlmaMode = 'standard' | 'elderly';
 
+/**
+ * Keys for autonomy settings domains.
+ * Each domain has an independent autonomy level 0-100.
+ */
+export type AutonomyKey = 'messages' | 'calendar' | 'smart_home';
+
+/**
+ * Autonomy settings per domain.
+ * Values 0-100 determine how independently Alma can act.
+ * 0-25: Suggest only (Alma recommends, user decides)
+ * 26-50: Ask first (Alma asks before acting)
+ * 51-75: Auto + notify (Alma acts, notifies after)
+ * 76-100: Fully autonomous (Alma acts silently)
+ */
+export interface AutonomySettings {
+  messages: number;
+  calendar: number;
+  smart_home: number;
+}
+
 // ─── CORE TYPES ───────────────────────────────────────────
 
 /**
@@ -64,6 +84,8 @@ export interface UserProfile {
   timezone: string;
   /** Current interface mode */
   mode: AlmaMode;
+  /** Autonomy settings per domain (null means use defaults) */
+  autonomy_settings: AutonomySettings | null;
   /** When the profile was created */
   created_at: string;
   /** When the profile was last updated */
@@ -148,6 +170,8 @@ export interface AlmaAlert {
   severity: AlertSeverity;
   /** Whether the user has dismissed this alert */
   is_dismissed: boolean;
+  /** When the alert is snoozed until (ISO 8601), null if not snoozed */
+  snoozed_until: string | null;
   /** When the alert was created */
   created_at: string;
 }

@@ -38,6 +38,7 @@ interface AlertRow {
   body: string | null
   priority: string | null
   read_at: string | null
+  snoozed_until: string | null
   created_at: string | null
 }
 
@@ -57,6 +58,7 @@ function toAlmaAlert(row: AlertRow): AlmaAlert {
     body: row.body || '',
     severity: mapPriorityToSeverity(row.priority),
     is_dismissed: row.read_at !== null,
+    snoozed_until: row.snoozed_until,
     created_at: row.created_at || new Date().toISOString(),
   }
 }

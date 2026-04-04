@@ -1,13 +1,13 @@
 // ============================================================
 // ALMA · COMPONENTS · BottomNav.tsx
 // ============================================================
-// What this file does: 5-tab bottom navigation for standard mode
+// What this file does: 6-tab bottom navigation for standard mode
 // Module: shell — see modules/shell/README.md
 // Depends on: lucide-react, next/link, next/navigation
 // Used by: Shell.tsx (standard mode only)
 // Zone: GREEN
 // Handoff: NO
-// Last checkpoint: PHASE-02
+// Last checkpoint: PHASE-03
 // ============================================================
 
 'use client'
@@ -18,6 +18,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  Home,
   MessageCircle,
   Calendar,
   Lightbulb,
@@ -42,6 +43,7 @@ interface BottomNavProps {
 // Why: Centralized nav config for easy updates.
 
 const NAV_ITEMS: NavItem[] = [
+  { icon: Home, label: 'Home', href: '/app/home' },
   { icon: MessageCircle, label: 'Chat', href: '/app' },
   { icon: Calendar, label: 'Calendar', href: '/app/calendar' },
   { icon: Lightbulb, label: 'Ideas', href: '/app/brainstorm' },
@@ -53,7 +55,7 @@ const NAV_ITEMS: NavItem[] = [
 // Why: Bottom nav provides quick access to main app sections.
 
 /**
- * Bottom navigation bar with 5 tabs for standard mode.
+ * Bottom navigation bar with 6 tabs for standard mode.
  * Height of 88px (64px visible + 24px safe area).
  * Touch targets minimum 44px per tab.
  *
@@ -64,10 +66,13 @@ export function BottomNav({ className }: BottomNavProps) {
   const pathname = usePathname()
 
   // Determine active tab
-  // Why: Exact match for /app, startsWith for nested routes
+  // Why: Exact match for /app and /app/home, startsWith for nested routes
   const isActive = (href: string) => {
     if (href === '/app') {
       return pathname === '/app'
+    }
+    if (href === '/app/home') {
+      return pathname === '/app/home'
     }
     return pathname.startsWith(href)
   }

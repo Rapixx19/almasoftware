@@ -1,13 +1,13 @@
 // ============================================================
 // ALMA · API · chat/route.ts
 // ============================================================
-// What this file does: Handles chat messages with Claude integration
+// What this file does: Handles chat messages with Claude integration and task extraction
 // Module: chat — see modules/chat/README.md
-// Depends on: lib/supabase/server.ts, lib/ai/system-prompt.ts, lib/ai/memory-context.ts, @anthropic-ai/sdk
+// Depends on: lib/supabase/server.ts, lib/ai/system-prompt.ts, lib/ai/memory-context.ts, lib/agents/task-extractor.ts, @anthropic-ai/sdk
 // Used by: hooks/useChat.ts
 // Zone: RED
 // Handoff: NO
-// Last checkpoint: PHASE-03
+// Last checkpoint: PHASE-07
 // ============================================================
 
 // ─── IMPORTS ──────────────────────────────────────────────
@@ -24,6 +24,10 @@ import {
   ALMA_SYSTEM_PROMPT,
 } from '@/lib/ai/system-prompt'
 import { getMemoryContext } from '@/lib/ai/memory-context'
+import {
+  extractTasksFromConversation,
+  hasTaskIntent,
+} from '@/lib/agents/task-extractor'
 
 // ─── SCHEMA ───────────────────────────────────────────────
 // Why: Rule 08 — Zod validation on all API request bodies.
@@ -139,10 +143,26 @@ export async function POST(request: Request): Promise<NextResponse> {
       console.error('Failed to save assistant message:', insertAssistantError)
     }
 
-    // Step 8: Return both messages
+    // Step 8: Post-process for task extraction (non-blocking)
+    // Why: Detect tasks mentioned in conversation for confirmation UI
+    let extractedTasks = null
+    if (hasTaskIntent(message)) {
+      try {
+        const extraction = await extractTasksFromConversation(message, responseText)
+        if (extraction.hasTaskMention && extraction.tasks.length > 0) {
+          extractedTasks = extraction.tasks
+        }
+      } catch (extractionError) {
+        // Log but don't fail the response
+        console.error('Task extraction error:', extractionError)
+      }
+    }
+
+    // Step 9: Return both messages with optional extracted tasks
     return NextResponse.json({
       userMessage,
       assistantMessage,
+      extractedTasks, // Array of tasks or null
     })
   } catch (err) {
     // Step 9: Catch-all error handler (Rule 08)

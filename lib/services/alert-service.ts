@@ -35,6 +35,7 @@ interface AlertRow {
   body: string | null
   priority: string | null
   read_at: string | null
+  snoozed_until: string | null
   created_at: string | null
 }
 
@@ -62,6 +63,7 @@ function toAlmaAlert(row: AlertRow): AlmaAlert {
     body: row.body || '',
     severity: mapPriorityToSeverity(row.priority),
     is_dismissed: row.read_at !== null,
+    snoozed_until: row.snoozed_until,
     created_at: row.created_at || new Date().toISOString(),
   }
 }
@@ -131,4 +133,34 @@ export async function deleteAlert(userId: string, id: string): Promise<void> {
   const supabase = await createClient()
   const { error } = await supabase.from('alma_alerts').delete().eq('id', id).eq('user_id', userId)
   if (error) throw new Error(`Failed to delete alert: ${error.message}`)
+}
+
+/** Snoozes an alert for specified minutes. userId from session (Rule 13). */
+export async function snoozeAlert(userId: string, id: string, minutes: number): Promise<AlmaAlert> {
+  const supabase = await createClient()
+  const snoozedUntil = new Date(Date.now() + minutes * 60 * 1000).toISOString()
+  const { data: row, error } = await supabase
+    .from('alma_alerts')
+    .update({ snoozed_until: snoozedUntil })
+    .eq('id', id)
+    .eq('user_id', userId)
+    .select()
+    .single()
+  if (error) throw new Error(`Failed to snooze alert: ${error.message}`)
+  return toAlmaAlert(row)
+}
+
+/** Fetches active alerts (non-dismissed, non-snoozed). userId from session (Rule 13). */
+export async function getActiveAlerts(userId: string): Promise<AlmaAlert[]> {
+  const supabase = await createClient()
+  const now = new Date().toISOString()
+  const { data, error } = await supabase
+    .from('alma_alerts')
+    .select('*')
+    .eq('user_id', userId)
+    .is('read_at', null)
+    .or(`snoozed_until.is.null,snoozed_until.lt.${now}`)
+    .order('created_at', { ascending: false })
+  if (error) throw new Error(`Failed to fetch active alerts: ${error.message}`)
+  return (data || []).map(toAlmaAlert)
 }
